@@ -23,6 +23,14 @@ print("Connecting to hello world server...")
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
 
+socket.send("test1 test2 test3")
+print(socket.recv())
+socket.send("")
+print(socket.recv())
+socket.send("test1")
+print(socket.recv())
+exit()
+
 max = 1000
 counter = 0
 success = False
