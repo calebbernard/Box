@@ -1,57 +1,13 @@
-#include <zmq.hpp>
-#include <zmq_addon.hpp>
 #include <string>
 #include <iostream>
 #include <unistd.h>
 #include <sstream>
 #include <vector>
+#include "io.h"
+#include "stringUtil.h"
 using namespace std;
 
-string itos(int i){
-    //cout << i << endl;
-    stringstream ss;
-    ss << i;
-    //cout << ss.str() << endl;
-    return ss.str();
-}
 
-class IOInterface{
-public:
-    virtual string input()=0;
-    virtual void output(string msg)=0;
-};
-
-class zmqWrapper : public IOInterface{
-private:
-    zmq::context_t context;
-    zmq::socket_t socket;
-public:
-    zmqWrapper(int port) : context(1), socket(context, ZMQ_REP){
-        socket.bind("tcp://*:" + itos(port));
-    }
-    string input(){
-        zmq::message_t request;
-        socket.recv(&request);
-        string msg = string(static_cast<char*>(request.data()), request.size());
-        return msg;
-    }
-    void output(string msg){
-        zmq::message_t reply(msg.length());
-        memcpy (reply.data(), msg.c_str(), msg.length());
-        socket.send(reply);
-    }
-};
-
-void splitString(string s, vector<string> &arr, string delimiter){
-    int pos = 0;
-    string token;
-    while ((pos = s.find(delimiter)) != -1) {
-        token = s.substr(0, pos);
-        arr.push_back(token);
-        s.erase(0, pos + delimiter.length());
-    }
-    arr.push_back(s);
-}
 
 class tutorial{
     int counter;
@@ -154,11 +110,7 @@ string parse(string request, intro *i, controller *c){
     return output;
 }
 
-
-
-
-
-void zmqLoop(){
+void mainLoop(){
     controller c;
     int port = 5555;
     intro i;
@@ -173,6 +125,6 @@ void zmqLoop(){
 }
 
 int main (){
-    zmqLoop();
+    mainLoop();
     return 0;
 }
