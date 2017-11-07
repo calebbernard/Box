@@ -12,12 +12,12 @@ public:
     virtual void output(string msg)=0;
 };
 
-class zmqWrapper : public IOInterface{
+class ZmqWrapper : public IOInterface{
 private:
     zmq::context_t context;
     zmq::socket_t socket;
 public:
-    zmqWrapper(int port) : context(1), socket(context, ZMQ_REP){
+    ZmqWrapper(int port) : context(1), socket(context, ZMQ_REP){
         socket.bind("tcp://*:" + itos(port));
     }
     string input(){
