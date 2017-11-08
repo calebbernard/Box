@@ -1,14 +1,54 @@
-
-
-#
-#   Hello World client in Python
-#   Connects REQ socket to tcp://localhost:5555
-#   Sends "Hello" to server, expects "World" back
-#
-
 import zmq
 import socket
 import time
+import struct
+
+
+#  Socket to talk to server
+print("Connecting to hello world server...")
+
+TCP_IP = '127.0.0.1'
+TCP_PORT = 5555
+
+def sendMsg(s, m):
+    l = str(len(m))
+    while len(l) < 5:
+        l = "0" + l;
+    s.send(l + m)
+
+def recvMsg(s):
+    headerSize = 5
+    size = int(s.recv(headerSize))
+    return s.recv(size)
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((TCP_IP, TCP_PORT))
+sendMsg(s, "")
+print(recvMsg(s))
+sendMsg(s, "")
+print(recvMsg(s))
+sendMsg(s, "")
+print(recvMsg(s))
+sendMsg(s, "#QUIT")
+s.close()
+
+exit()
+
+context = zmq.Context()
+
+socket = context.socket(zmq.REQ)
+socket.connect("tcp://localhost:5555")
+
+socket.send("\0")
+print(socket.recv())
+
+socket.send("\0")
+print(socket.recv())
+
+socket.send("\0")
+print(socket.recv())
+
+exit()
 
 def testSuccess():
     socket.send(b"getSuccess")
@@ -17,44 +57,6 @@ def testSuccess():
         return True
     else:
         return False
-
-context = zmq.Context()
-
-#  Socket to talk to server
-print("Connecting to hello world server...")
-
-
-TCP_IP = '127.0.0.1'
-TCP_PORT = 5555
-BUFFER_SIZE = 1024
-MESSAGE = "\0"
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((TCP_IP, TCP_PORT))
-while True:
-    s.send(MESSAGE)
-    data = s.recv(BUFFER_SIZE)
-    print(data)
-    time.sleep(1)
-s.close()
-
-
-
-exit()
-
-socket = context.socket(zmq.REQ)
-socket.connect("tcp://localhost:5555")
-
-socket.send("")
-print(socket.recv())
-
-socket.send("")
-print(socket.recv())
-
-socket.send("")
-print(socket.recv())
-
-exit()
 
 max = 1000
 counter = 0

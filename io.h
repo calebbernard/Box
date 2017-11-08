@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include <iomanip>
 #include <string>
 #include "stringUtil.h"
 using namespace std;
@@ -62,7 +63,7 @@ public:
 class TcpWrapper: public IOInterface{
     int sockfd, newsockfd;
     socklen_t clilen;
-    char buffer[1024];
+    char buffer[100000];
     struct sockaddr_in serv_addr, cli_addr;
 public:
     TcpWrapper(int port) {
@@ -75,11 +76,25 @@ public:
         bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
     }
     string input(){
-        read(newsockfd, buffer, 1023);
+        read(newsockfd, buffer, 5);
+        int msgLength = 0;
+        for (int x = 0; x < 5; x++){
+            msgLength *= 10;
+            msgLength += buffer[x] - '0';
+        }
+        bzero(buffer, 5);
+        if (msgLength > 0){
+            read (newsockfd, buffer, msgLength);
+        }
         return buffer;
     }
     void output (string msg){
-        write(newsockfd, msg.c_str(), msg.length());
+        string length = itos(msg.length());
+        while (length.length() < 5){
+            length = "0" + length;
+        }
+        string finalMsg = length + msg;
+        write(newsockfd, finalMsg.c_str(), finalMsg.length());
     }
     string description(){
         return "TCP server";
@@ -88,7 +103,7 @@ public:
         listen(sockfd, 5);
         clilen = sizeof(cli_addr);
         newsockfd = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen);
-        bzero(buffer, 1023);
+        bzero(buffer, 99999);
     }
     bool connected(){
         return newsockfd != 0;

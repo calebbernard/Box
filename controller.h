@@ -21,7 +21,7 @@ public:
     Startup(){
         instructionState = 0;
         tutorialText.push_back("Oh good, you compiled.");
-        tutorialText.push_back("A quick calibration if you don't mind. Send a blank signal.");
+        tutorialText.push_back("A quick calibration if you don't mind. Send a blank message (\"00000\").");
         tutorialText.push_back("Good. Now send:\nABC123");
     }
     string instructions(){
@@ -33,10 +33,9 @@ public:
         string output;
         vector<string> words;
         splitString(request, words, " ");
-        //cout << words.size() << '\n';
         switch (words.size()){
             case 1:
-                if (words[0] == ""){ // Blank
+                if (words[0] == "" || words[0].at(0) == '\0'){ // Blank
                     output = instructions();
                 }
                 else { // Arity 0
