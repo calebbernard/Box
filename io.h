@@ -1,8 +1,5 @@
 #pragma once
 
-#include <zmq.hpp>
-#include <zmq_addon.hpp>
-
 #include <cstdlib>
 #include <cstring>
 #include <unistd.h>
@@ -30,36 +27,6 @@ public:
     virtual void connect()=0;
 };
 
-class ZmqWrapper : public IOInterface{
-private:
-    zmq::context_t context;
-    zmq::socket_t socket;
-public:
-    ZmqWrapper(int port) : context(1), socket(context, ZMQ_REP){
-        socket.bind("tcp://*:" + itos(port));
-    }
-    string input(){
-        zmq::message_t request;
-        socket.recv(&request);
-        string msg = string(static_cast<char*>(request.data()), request.size());
-        return msg;
-    }
-    void output(string msg){
-        zmq::message_t reply(msg.length());
-        memcpy (reply.data(), msg.c_str(), msg.length());
-        socket.send(reply);
-    }
-    string description(){
-        return "ZeroMQ server";
-    }
-    void connect(){
-        
-    }
-    bool connected(){
-        return true;
-    }
-};
-
 class TcpWrapper: public IOInterface{
     int sockfd, newsockfd;
     socklen_t clilen;
@@ -77,6 +44,15 @@ public:
     }
     string input(){
         read(newsockfd, buffer, 5);
+        for (int x = 0; x < 5; x++){
+            if (buffer[x] == '\0'){
+                throw(0);
+            }
+            if (buffer[x] < '0' || buffer[x] > '9'){
+                cout << "Error: Bad input format.\nPlease preface each ASCII message with a 5-character string specifying the length in bytes of the remaining message.\n";
+                throw(0);
+            }
+        }
         int msgLength = 0;
         for (int x = 0; x < 5; x++){
             msgLength *= 10;
