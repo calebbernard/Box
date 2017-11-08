@@ -5,14 +5,105 @@ using namespace std;
 
 class Controller{
 public:
-    virtual string blank()=0;
+    virtual string instructions()=0;
+    virtual string invalidInput(){
+        return "Invalid input.";
+    }
+    virtual string parse(string request)=0;
+};
+
+class Startup : public Controller {
+    vector<string> tutorialText;
+    bool blankTest;
+    bool arity0Test;
+    int instructionState;
+public:
+    Startup(){
+        instructionState = 0;
+        tutorialText.push_back("Oh good, you compiled.");
+        tutorialText.push_back("A quick calibration if you don't mind. Send a blank signal.");
+        tutorialText.push_back("Good. Now send:\nABC123");
+    }
+    string instructions(){
+        string reply = tutorialText[instructionState % tutorialText.size()];
+        instructionState++;
+        return reply;
+    }
+    string parse(string request){
+        string output;
+        vector<string> words;
+        splitString(request, words, " ");
+        //cout << words.size() << '\n';
+        switch (words.size()){
+            case 1:
+                if (words[0] == ""){ // Blank
+                    output = instructions();
+                }
+                else { // Arity 0
+                    output = invalidInput();
+                }
+                break;
+            case 2: // Arity 1
+                output = invalidInput();
+                break;
+            default:
+                output = invalidInput();
+                break;
+        }
+        return output;
+    }
 };
 
 class TutorialSuccess : public Controller {
 public:
-    string blank() {
+    string instructions() {
         string msg = pull();
         return msg;
+    }
+    string parse(string request){
+        string output;
+        vector<string> words;
+        splitString(request, words, " ");
+        cout << words.size() << '\n';
+        switch (words.size()){
+            case 1:
+                if (words[0] == ""){ // Blank
+                    output = instructions();
+                }
+                else { // Arity 0
+                    if (words[0] == "a"){
+                        output = a();
+                    } else if (words[0] == "b"){
+                        output = b();
+                    } else {
+                        output = invalidInput();
+                    }
+                }
+                break;
+            case 2: // Arity 1
+                if (words[0] == "a"){
+                    output = a1(words[1]);
+                } else if (words[0] == "b"){
+                    output = b1(words[1]);
+                }
+                break;
+            default:
+                output = invalidInput();
+                break;
+        }
+        return output;
+    }
+    string a(){
+        return "a";
+    }
+    string b(){
+        return "b";
+    }
+    string a1(string arg){
+        return "a - " + arg;
+    }
+    string b1(string arg){
+        return "b - " + arg;
     }
     string pull(){
         string msg = "Ultimate Success!";
@@ -20,7 +111,7 @@ public:
     }
 };
 
-class Tutorial : public Controller {
+class Tutorial {
     int counter;
     vector<string> tutorialText;
 public:
@@ -39,9 +130,15 @@ public:
         string msg = pull();
         return msg;
     }
+    string arity0(string command){
+        return "";
+    }
+    string arity1(string command, string arg1){
+        return "";
+    }
 };
 
-class Intro : public Controller {
+class Intro {
     int a, b, c;
 public:
     Intro(){
@@ -88,5 +185,11 @@ public:
     string blank(){
         string msg = "Blank! What can ya do.";
         return msg;
+    }
+    string arity0(string command){
+        return "";
+    }
+    string arity1(string command, string arg1){
+        return "";            
     }
 };

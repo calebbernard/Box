@@ -7,6 +7,8 @@
 #
 
 import zmq
+import socket
+import time
 
 def testSuccess():
     socket.send(b"getSuccess")
@@ -20,15 +22,38 @@ context = zmq.Context()
 
 #  Socket to talk to server
 print("Connecting to hello world server...")
+
+
+TCP_IP = '127.0.0.1'
+TCP_PORT = 5555
+BUFFER_SIZE = 1024
+MESSAGE = "\0"
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((TCP_IP, TCP_PORT))
+while True:
+    s.send(MESSAGE)
+    data = s.recv(BUFFER_SIZE)
+    print(data)
+    time.sleep(1)
+s.close()
+
+
+
+exit()
+
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
 
-socket.send("test1 test2 test3")
-print(socket.recv())
 socket.send("")
 print(socket.recv())
-socket.send("test1")
+
+socket.send("")
 print(socket.recv())
+
+socket.send("")
+print(socket.recv())
+
 exit()
 
 max = 1000

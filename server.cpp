@@ -17,46 +17,38 @@ public:
     MetaController(Controller * c_){
         c = c_;
     }
-    string blank(){
-        return "no arguments";
+    ~MetaController(){
+        delete c;
     }
-    string single(){
-        return "One argument";
+    string unrecognizedInput(){
+        return "I'm not sure how to handle that input (probably too many arguments).";
     }
-    string notBlank(){
-        return "some arguments";
-    }
-    string parse(string request){
-        string output;
-        vector<string> words;
-        splitString(request, words, " ");
-        cout << words.size() << '\n';
-        switch (words.size()){
-            case 1:
-                if (words[0] == ""){
-                    output = blank();
-                } else {
-                    output = single();
-                }
-                break;
-            default:
-                output = notBlank();
-                break;
+    string parse(string input){
+        if (input.size() > 0 && input.at(0) == '#'){
+            return "Metacommand";
+        } else {
+            return c->parse(input);
         }
-        return output;
     }
 };
 
 void mainLoop(){
-    MetaController c;
+    MetaController c(new Startup());
     int port = 5555;
-    IOInterface * io = new ZmqWrapper(port);
-    cout << "Server live on port " << port << ".\n";
-    while(true){
+    IOInterface * io = new TcpWrapper(port);
+    cout << io->description() << " live on port " << port << ".\n";
+    if (!io->connected()){
+        io->connect();
+    }
+    cout << "Connection established.\n";
+
+    while(io->connected()){
         string input = io->input();
+        cout << input << '\n';
         string output = c.parse(input);
         io->output(output);
     }
+    cout << "Connection ended.\n";
     delete io;
 }
 
