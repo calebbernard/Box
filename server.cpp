@@ -13,7 +13,7 @@ using namespace std;
 
 
 
-// MetaController should handle meta commands (like the #commands) as well as interface-enforced commands, and pass everything else to the subcontroller.
+// MetaController should handle universal commands and pass everything else to the current controller.
 class MetaController{
     Controller * c;
 public:
