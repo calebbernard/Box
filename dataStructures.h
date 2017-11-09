@@ -7,7 +7,7 @@ using namespace std;
 
 class Argument{
 public:
-    string type;
+    string type; // this should become an enum
     string description;
 };
 
@@ -40,6 +40,7 @@ public:
     }
     string describe(){
         int counter = 0;
+        string pluralize = "";
         string output = keyword + " - " + description;
         output += "\n" + keyword + " takes " + itos(argument.size()) + " arguments.";
         for (int x = 0; x < argument.size(); x++){
@@ -56,10 +57,16 @@ public:
     virtual string instructions()=0;
     virtual string invalidInput(){
         string output = "Invalid command. Current options:";
+        string pluralize = "";
         for (int x = 0; x < availableCommands.size(); x++){
-            output += "\n\t" + itos(x) + ". " + availableCommands[x].keyword;
+            if (availableCommands[x].argument.size() != 1){
+                pluralize = "s";
+            } else {
+                pluralize = "";
+            }
+            output += "\n\t" + itos(x) + ". " + availableCommands[x].keyword + "(" + itos(availableCommands[x].argument.size()) + " argument" + pluralize + ")";
         }
-        output += "\n For more instructions about a particular command on this list, type its name followed by a question mark.";
+        output += "\nFor more instructions about a particular command on this list, type its name followed by a question mark.";
         return output;
     }
     virtual string parse(string request){
@@ -70,21 +77,34 @@ public:
         if (words[0] == ""){
             return invalidInput();
         }
-        for (int x = 0; x < availableCommands.size(); x++){
-            if (words[0].substr(words[0].length() - 1, words[0].length()) == "?"){
-                if (words[0].substr(0, words[0].length() - 1) == availableCommands[x].keyword){
+        if (words.size() == 2 && words[1].substr(words[1].length()-1, words[1].length()) == "?" && isNum(words[1].substr(0, words[1].length()-1))){
+            for (int x = 0; x < availableCommands.size(); x++){
+                //cout << (strtoi(words[1].substr(0,words[1].length()-1))) << '\n';
+                if ((words[0] == availableCommands[x].keyword) && (strtoi(words[1].substr(0,words[1].length()-1)) == availableCommands[x].argument.size())){
                     output = availableCommands[x].describe();
-                    break;
                 }
             }
-            if (words[0] == availableCommands[x].keyword){
-                //cout << words.size() << " - " << availableCommands[x].argument.size() << '\n';
-                if (words.size() - 1 == availableCommands[x].argument.size()){
-                    output = runCommand(words, availableCommands[x]);
+            
+        }
+        else {
+            for (int x = 0; x < availableCommands.size(); x++){
+                if (words[0] == availableCommands[x].keyword){
+                    //cout << words.size() << " - " << availableCommands[x].argument.size() << '\n';
+                    if (words.size() - 1 == availableCommands[x].argument.size()){
+                        output = runCommand(words, words.size() - 1);
+                    }
                 }
             }
         }
+        
         return output;
     }
-    virtual string runCommand(vector<string> words, Command c)=0;
+    virtual string runCommand(vector<string> words, int arity)=0;
+    virtual void removeCommand(Command c){
+        for (int x = 0; x < availableCommands.size(); x++){
+            if (c.keyword == availableCommands[x].keyword && c.argument.size() == availableCommands[x].argument.size()){
+                availableCommands.erase(availableCommands.begin() + x);
+            }
+        }
+    }
 };
