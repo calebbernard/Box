@@ -43,6 +43,7 @@ public:
         bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
     }
     string input(){
+        bzero(buffer, 99999);
         read(newsockfd, buffer, 5);
         for (int x = 0; x < 5; x++){
             if (buffer[x] == '\0'){
@@ -50,6 +51,7 @@ public:
             }
             if (buffer[x] < '0' || buffer[x] > '9'){
                 cout << "Error: Bad input format.\nPlease preface each ASCII message with a 5-character string specifying the length in bytes of the remaining message.\n";
+                cout << "(Character " << buffer[x] << " found at position " << x << ", which is reserved for length marker)\n";
                 throw(0);
             }
         }

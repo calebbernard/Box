@@ -3,9 +3,12 @@
 #include <unistd.h>
 #include <sstream>
 #include <vector>
+#include <time.h>
+#include <stdlib.h>
 #include "io.h"
 #include "stringUtil.h"
 #include "controller.h"
+#include "dataStructures.h"
 using namespace std;
 
 
@@ -27,12 +30,16 @@ public:
         if (input.size() > 0 && input.at(0) == '#'){
             return "metacommand";
         } else {
+            if (c->changeController != 0){
+                c = c->changeController;
+            }
             return c->parse(input);
         }
     }
 };
 
 void mainLoop(int port){
+    srand(time(0));
     MetaController c(new Startup());
     IOInterface *io = new TcpWrapper(port);
     string greeting = io->description() + " live on port " + itos(port);
