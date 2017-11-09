@@ -64,9 +64,9 @@ public:
             } else {
                 pluralize = "";
             }
-            output += "\n\t" + itos(x) + ". " + availableCommands[x].keyword + "(" + itos(availableCommands[x].argument.size()) + " argument" + pluralize + ")";
+            output += "\n\t" + itos(x) + ". " + availableCommands[x].keyword + " (" + itos(availableCommands[x].argument.size()) + " argument" + pluralize + ")";
         }
-        output += "\nFor more instructions about a particular command on this list, type its name followed by a question mark.";
+        output += "\nFor more instructions about a particular command on this list, type \"[command name] [# of args]?\"";
         return output;
     }
     virtual string parse(string request){
@@ -79,30 +79,26 @@ public:
         }
         if (words.size() == 2 && words[1].substr(words[1].length()-1, words[1].length()) == "?" && isNum(words[1].substr(0, words[1].length()-1))){
             for (int x = 0; x < availableCommands.size(); x++){
-                //cout << (strtoi(words[1].substr(0,words[1].length()-1))) << '\n';
                 if ((words[0] == availableCommands[x].keyword) && (strtoi(words[1].substr(0,words[1].length()-1)) == availableCommands[x].argument.size())){
                     output = availableCommands[x].describe();
                 }
             }
-            
         }
         else {
             for (int x = 0; x < availableCommands.size(); x++){
                 if (words[0] == availableCommands[x].keyword){
-                    //cout << words.size() << " - " << availableCommands[x].argument.size() << '\n';
                     if (words.size() - 1 == availableCommands[x].argument.size()){
                         output = runCommand(words, words.size() - 1);
                     }
                 }
             }
         }
-        
         return output;
     }
     virtual string runCommand(vector<string> words, int arity)=0;
-    virtual void removeCommand(Command c){
+    virtual void removeCommand(string keyword_, int arity_){
         for (int x = 0; x < availableCommands.size(); x++){
-            if (c.keyword == availableCommands[x].keyword && c.argument.size() == availableCommands[x].argument.size()){
+            if (keyword_ == availableCommands[x].keyword && arity_ == availableCommands[x].argument.size()){
                 availableCommands.erase(availableCommands.begin() + x);
             }
         }
