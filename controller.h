@@ -14,13 +14,10 @@ using namespace std;
 //class
 
 class Startup : public Controller {
-    Command blankMsg;
     Command testCommand;
 public:
     Startup(){
-        blankMsg.set();
-        availableCommands.push_back(blankMsg);
-        testCommand.set("test", "This is a test command.", "int string", "fun integer!~cool string");
+        testCommand.set("begin", "Call this command to get started.", "", "");
         availableCommands.push_back(testCommand);
         changeController = 0;
         instructions();

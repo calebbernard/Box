@@ -67,6 +67,9 @@ public:
         vector<string> words;
         splitString(request, words, " ");
         bool foundMatch = 0;
+        if (words[0] == ""){
+            return invalidInput();
+        }
         for (int x = 0; x < availableCommands.size(); x++){
             if (words[0].substr(words[0].length() - 1, words[0].length()) == "?"){
                 if (words[0].substr(0, words[0].length() - 1) == availableCommands[x].keyword){
