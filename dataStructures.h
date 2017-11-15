@@ -50,9 +50,9 @@ public:
     }
 };
 
-class Controller{
+class Module{
 public:
-    Controller * changeController;
+    Module * changeModule;
     vector<Command> availableCommands;
     virtual string instructions()=0;
     virtual string invalidInput(){

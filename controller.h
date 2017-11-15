@@ -13,15 +13,18 @@ using namespace std;
 
 //class
 
-class Startup : public Controller {
+class Startup : public Module {
+    Command instructions;
     Command testCommand;
     vector<string> calibrations;
+    int counter;
 public:
     Startup(){
+        instructions.set("?", "Instructions for this module.", "", "")
         testCommand.set("begin", "Call this command to get started.", "", "");
         availableCommands.push_back(testCommand);
         changeController = 0;
-        instructions();
+
         calibrations.push_back("ABC123");
         string dynCheck = "";
         for (int x = 0; x < 3; x++){
@@ -66,7 +69,7 @@ public:
                 Command patOnTheBack;
                 patOnTheBack.set("hooray", "a command to congratulate you on your success!", "", "");
                 availableCommands.push_back(patOnTheBack);
-                output = "Yayayay! You did it! Unlocked command 'hooray'!";
+                output = "";
             }
         }
         return output;

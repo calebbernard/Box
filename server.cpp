@@ -7,40 +7,48 @@
 #include <stdlib.h>
 #include "io.h"
 #include "stringUtil.h"
-#include "controller.h"
+#include "module.h"
 #include "dataStructures.h"
 using namespace std;
 
 
 
 // MetaController should handle universal commands and pass everything else to the current controller.
-class MetaController{
-    Controller * c;
+class MetaModule{
+    Module * m;
+    bool startup;
 public:
-    MetaController(Controller * c_){
-        c = c_;
+    MetaModule(Module * m_){
+        m = m_;
+        startup = true;
     }
-    ~MetaController(){
-        delete c;
+    ~MetaModule(){
+        delete m;
     }
     string unrecognizedInput(){
         return "I'm not sure how to handle that input (probably too many arguments).";
     }
     string parse(string input){
+        if (startup){
+            startup = false;
+            if (input != "?"){
+                return "Please send a question mark to get started.";
+            }
+        }
         if (input.size() > 0 && input.at(0) == '#'){
             return "metacommand";
         } else {
-            if (c->changeController != 0){
-                c = c->changeController;
+            if (m->changeModule != 0){
+                m = m->changeModule;
             }
-            return c->parse(input);
+            return m->parse(input);
         }
     }
 };
 
 void mainLoop(int port){
     srand(time(0));
-    MetaController c(new Startup());
+    MetaModule m(new Startup());
     IOInterface *io = new TcpWrapper(port);
     string greeting = io->description() + " live on port " + itos(port);
     string dashes = "";
@@ -48,15 +56,12 @@ void mainLoop(int port){
         dashes += "-";
     }
     cout << greeting << endl << dashes << endl;
-    //cout << "Preface messages with 5-digit message length string.\nExample: 00012Hello World!\n";
     if (!io->connected()){
         io->connect();
-        //cout << "Connection established.\n";
     }
     while(io->connected()){
-        io->output(c.parse(io->input()));        
+        io->output(m.parse(io->input()));        
     }
-    //cout << "Connection ended.\n"; // this point isn't being reached
     delete io;
 }
 
