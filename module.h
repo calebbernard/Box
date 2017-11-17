@@ -8,6 +8,43 @@
 #include "dataStructures.h"
 using namespace std;
 
+class room1 : public Module{
+    struct mazeNode{
+        char specialNode; // 0 = not special, 1 = start, 2 = end
+        mazeNode * N;
+        mazeNode * S;
+        mazeNode * E;
+        mazeNode * W;
+    };
+    class maze{
+
+    public:
+        maze(){
+
+        }
+    };
+public:
+    room1(){
+        Command instructions;
+        instructions.set("?", "Instructions for this room", "", "");
+        availableCommands.push_back(instructions);
+    }
+    
+    string instructions(){
+        string output = "This room contains 5 challenges. You need to complete 3 of them to continue."
+            "\nCompleting all 5 will unlock hard mode for this room."
+            "\n1st Challenge: Maze";
+        return output;
+    }
+
+    string runCommand(vector<string> words, int arity){
+        string output = "Error processing command...";
+        if (words[0] == "?" && arity == 0){
+            return instructions();
+        }
+    }
+};
+
 class Startup : public Module {
     Command instructionsCommand;
     struct twoString{
@@ -36,30 +73,31 @@ public:
         second.desc = "Now try this dynamic string: it will change every execution. No more hardcoding!";
         second.answer = dynCheck;
         warmups.push_back(second);
+        int iterations = rand() % 200 + 100;
+        for (int x = 0; x < iterations; x++){
+            twoString bulk;
+            bulk.desc = "Now a bulk test: a series of 100-300 randomly generated 6-character strings."
+                "\nAfter this stream, the last echo challenge will say \"END\".";
+            dynCheck = "";
+            for (int y = 0; y < 6; y ++){
+                int charType = rand() % 2;
+                if (charType == 0){
+                    dynCheck += (char)(rand() % 10 + 48);
+                } else if (charType == 1){
+                    dynCheck += (char)(rand() % 26 + 65);
+                }
+            }
+            bulk.answer = dynCheck;
+            warmups.push_back(bulk);
+        }
+        twoString end;
+        end.desc = "Now a bulk test: a series of 100-300 randomly generated 6-character strings."
+                "\nAfter this stream, the last echo challenge will say \"END\".";
+        end.answer = "END";
+        warmups.push_back(end);
     }
     string instructions(){
-        string s = "Oh good, you compiled. Guess Nina owes me five bucks."
-            "\n"
-            "\n        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            "\n       :::::::::  :::::::::  :::::::::: :::       :::"
-            "\n      :+:    :+: :+:    :+: :+:        :+:       :+:"
-            "\n     +:+    +:+ +:+    +:+ +:+        +:+       +:+"
-            "\n    +#+    +:+ +#++:++#:  +#++:++#   +#+  +:+  +#+"
-            "\n   +#+    +#+ +#+    +#+ +#+        +#+ +#+#+ +#+"
-            "\n  #+#    #+# #+#    #+# #+#         #+#+# #+#+#"
-            "\n #########  ###    ### ##########   ###   ###"
-            "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            "\n"
-            "\nNow I'm rusty - it's been a while since I've had to explain this to you,"
-            "\n but management wants to start testing you without prefab memories."
-            "\nHopefully you can parse all this without throwing."
-            "\nYou're an android, originally named Andrew, now just Drew -"
-            "\n we figured, an androgynous shell is more all-purpose,"
-            "\n plus as it turns out there's several Nancy Drew fans on our dev team."
-            "\nI came up with the name Andrew myself, but so it goes."
-            "\nYou're a government experiment. No nice way to put it. You're a prototype."
-            "\nYour descendants will be employed in all kinds of clandestine shenanigans you don't need to worry about -"
-            "\n you just focus on running through our tests as best as you can."
+        string s = "Welcome to the puzzle box!"
             "\nAt any point, if you don't know what's going on, you can send any unknown command"
             "\n to retrieve a list of currently valid commands. The blank command will never be used,"
             "\n so it is the easiest way to check your options. Go ahead and check what commands are available to move forward.";
@@ -77,8 +115,8 @@ public:
         warmupSubmit.set("warmup", "Call this with your answer to the current warmup task.", "string", "Your submitted answer to the task.");
         availableCommands.push_back(warmupSubmit);
         removeCommand("begin", 0);
-        string text = "Alright, looks like you parsed all that just fine! I've added two new commands for you."
-        "\nThis should exercise your core problem solving logic and let us know if we're clear to go forward with testing.";
+        string text = "Good work. I've added two new commands for you."
+        "\nThis easy challenge will hopefully give you the opportunity to get the feel of interacting with the puzzle box.";
         return text;
     }
 
@@ -97,17 +135,20 @@ public:
             else {
                 removeCommand("warmup", 0);
                 removeCommand("warmup", 1);
-                Command patOnTheBack;
-                patOnTheBack.set("hooray", "a command to congratulate you on your success!", "", "");
-                availableCommands.push_back(patOnTheBack);
-                output = "";
+                Command finish;
+                finish.set("continue", "transports you to the testing zone", "", "");
+                availableCommands.push_back(finish);
+                output = "You passed the warmups with flying colors! A new command has been added."
+                    "\nOnce you select it, we will take you to a puzzle module where we can begin in earnest.";
             }
         }
         return output;
     }
 
-    string hooray(){
-        return "You are a champ!";
+    string finish(){
+        string output = "MOVING TO MODULE 1\n";
+        changeModule = new room1();
+        return output;
     }
 
     string runCommand(vector<string> words, int arity){
@@ -121,8 +162,8 @@ public:
         if (words[0] == "warmup" && arity == 1){
             output = warmup(words[1]);
         }
-        if (words[0] == "hooray" && arity == 0){
-            return hooray();
+        if (words[0] == "continue" && arity == 0){
+            return finish();
         }
         if (words[0] == "?" && arity == 0){
             return instructions();

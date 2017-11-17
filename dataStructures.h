@@ -55,8 +55,14 @@ public:
     Module * changeModule;
     vector<Command> availableCommands;
     virtual string instructions()=0;
-    virtual string invalidInput(){
-        string output = "Invalid command. Current options:";
+    virtual string runCommand(vector<string> words, int arity)=0;
+    virtual string invalidInput(bool blankString = false){
+        string output;
+        if (blankString){
+            output = "Currently avaliable commands:";
+        } else {
+            output = "Invalid command. Current options:";
+        }
         string pluralize = "";
         for (int x = 0; x < availableCommands.size(); x++){
             if (availableCommands[x].argument.size() != 1){
@@ -75,7 +81,7 @@ public:
         splitString(request, words, " ");
         bool foundMatch = 0;
         if (words[0] == ""){
-            return invalidInput();
+            return invalidInput(true);
         }
         if (words.size() == 2 && words[1].substr(words[1].length()-1, words[1].length()) == "?" && isNum(words[1].substr(0, words[1].length()-1))){
             for (int x = 0; x < availableCommands.size(); x++){
@@ -95,7 +101,6 @@ public:
         }
         return output;
     }
-    virtual string runCommand(vector<string> words, int arity)=0;
     virtual void removeCommand(string keyword_, int arity_){
         for (int x = 0; x < availableCommands.size(); x++){
             if (keyword_ == availableCommands[x].keyword && arity_ == availableCommands[x].argument.size()){
