@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "io.h"
 #include "stringUtil.h"
-#include "module.h"
+#include "startupModule.h"
 #include "dataStructures.h"
 using namespace std;
 
@@ -29,20 +29,22 @@ public:
         return "I'm not sure how to handle that input (probably too many arguments).";
     }
     string parse(string input){
+        string output = "ERROR";
         if (startup){
             startup = false;
             if (input != "?"){
-                return "Please send a question mark to get started.";
+                output = "Please send a question mark to get started.";
             }
         }
         if (input.size() > 0 && input.at(0) == '#'){
-            return "metacommand";
+            output = "metacommand";
         } else {
-            if (m->changeModule != 0){
-                m = m->changeModule;
-            }
-            return m->parse(input);
+            output = m->parse(input);
         }
+        if (m->changeModule != 0){
+            m = m->changeModule;
+        }
+        return output;
     }
 };
 
