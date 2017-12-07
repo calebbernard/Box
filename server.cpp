@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "io.h"
 #include "stringUtil.h"
-#include "startupModule.h"
+#include "Modules/startupModule.h"
 #include "dataStructures.h"
 using namespace std;
 
